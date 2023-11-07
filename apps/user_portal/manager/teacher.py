@@ -3,7 +3,7 @@ from django.contrib.auth.base_user import BaseUserManager
 from django.db import transaction
 from django.utils import timezone
 from hashid_field import Hashid
-
+import secrets
 
 from apps.user_portal.models.salted_password import SaltedPasswordModel
 
@@ -26,8 +26,8 @@ class TeacherManager(BaseUserManager):
         salted_password = SaltedPasswordModel(hashed_special_key=hashed_special_key)
         salted_password.set_password(password=password)
 
-        now = timezone.now()
-        user = GenericUser(email=email, is_superuser=False, last_login=now)
+        # now = timezone.now()
+        user = GenericUser(email=email, is_superuser=False)
 
         with transaction.atomic():
             salted_password.save()
@@ -35,10 +35,10 @@ class TeacherManager(BaseUserManager):
             teacher.save()
         return user, salted_password
 
-    def create_superuser(self, email, password, **extra_fields):
-        extra_fields.setdefault("is_staff", True)
-        extra_fields.setdefault("is_superuser", True)
-        extra_fields.setdefault("is_active", True)
-        return self.create_user(email=email,
-                                password=password,
-                                **extra_fields)
+    # def create_superuser(self, email, password, **extra_fields):
+    #     extra_fields.setdefault("is_staff", True)
+    #     extra_fields.setdefault("is_superuser", True)
+    #     extra_fields.setdefault("is_active", True)
+    #     return self.create_user(email=email,
+    #                             password=password,
+    #                             **extra_fields)

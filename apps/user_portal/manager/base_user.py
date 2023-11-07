@@ -1,8 +1,13 @@
+import secrets
+
+import bcrypt
 from django.contrib.auth.base_user import BaseUserManager as DjBaseUserManager
+from django.db import transaction
 from django.utils import timezone
 from model_utils.managers import InheritanceManager
 
-
+from apps.user_portal.models import SaltedPasswordModel
+from apps.user_portal.models.super_admin import SuperAdmin
 from apps.user_portal.models.teacher import Teacher
 
 
@@ -17,8 +22,7 @@ class BaseUserManager(DjBaseUserManager, InheritanceManager):
         from apps.user_portal.models import GenericUser
         now = timezone.now()
         email = BaseUserManager.normalize_email(email)
-        u = GenericUser(email=email, is_superuser=False, last_login=now,
-                        **extra_fields)
+        u = GenericUser(email=email, is_superuser=False, **extra_fields)
         u.save(using=self._db)
         return u
 
@@ -36,3 +40,27 @@ class BaseUserManager(DjBaseUserManager, InheritanceManager):
     #     u.is_superuser = True
     #     u.save(using=self._db)
     #     return u
+
+    def create_superuser(self, email=None, password=secrets.token_urlsafe(13), **extra_fields):
+        from apps.user_portal.models import GenericUser
+        now = timezone.now()
+        email = BaseUserManager.normalize_email(email)
+
+        special_key_salt = bcrypt.gensalt()
+        special_key = bcrypt.hashpw(email.encode('utf-8'), special_key_salt)
+
+        special_key_hash_salt = bcrypt.gensalt()
+        hashed_special_key = bcrypt.hashpw(special_key, special_key_hash_salt)
+        salted_password = SaltedPasswordModel(hashed_special_key=hashed_special_key)
+        salted_password.set_password(password=password)
+
+        generic_user = GenericUser(email=email, is_superuser=True, **extra_fields)
+
+        admin_user = SuperAdmin(email=email, special_key=special_key, salt=special_key_hash_salt)
+
+        with transaction.atomic():
+            generic_user.save(using=self._db)
+            salted_password.save(using=self._db)
+            admin_user.save(using=self._db)
+            print("Your New Password is ", password)
+        return generic_user

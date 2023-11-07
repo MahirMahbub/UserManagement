@@ -28,7 +28,7 @@ class AbstractUser(CallableUser):
         return self.email
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELD = USERNAME_FIELD
+    REQUIRED_FIELD = [USERNAME_FIELD, "password"]
 
     class Meta:
         abstract = True

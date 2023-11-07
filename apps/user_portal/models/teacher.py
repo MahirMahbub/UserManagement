@@ -19,6 +19,7 @@ class Teacher(AbstractBaseUser):
     user_id = models.CharField(max_length=50, unique=True)
     special_key = models.CharField(max_length=255, unique=True)
     password = None
+    last_login = None
     salt = models.CharField(max_length=255, null=True)
 
     USERNAME_FIELD = 'user_name'
