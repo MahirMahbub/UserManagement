@@ -2,7 +2,7 @@ import bcrypt
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
 
-from apps.user_portal.manager.teacher import TeacherManager
+from apps.user_portal.managers.teacher import TeacherManager
 
 
 class SuperAdmin(AbstractBaseUser):
@@ -14,8 +14,6 @@ class SuperAdmin(AbstractBaseUser):
     last_login = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELD = USERNAME_FIELD
-
-    # objects = TeacherManager()
 
     def generate_special_key(self):
         salt = bcrypt.gensalt()

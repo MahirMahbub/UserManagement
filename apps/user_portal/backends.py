@@ -20,16 +20,30 @@ class CustomAdminBackend(ModelBackend):
                 admin = SuperAdmin.objects.get(email=username)
             except SuperAdmin.DoesNotExist:
                 return None
-            if self.check_password(password, admin):
+            if self.check_password(password, admin) and self.user_can_authenticate(user):
                 return user
             else:
                 return None
-        # if self.model.check_password(password) and user is not None:
         return user
+
+    def user_can_authenticate(self, user):
+        """
+        Reject users with is_active=False. Custom user models that don't have
+        that attribute are allowed.
+        """
+        email = getattr(user, "email", None)
+        if email is None:
+            return False
+        try:
+            admin = SuperAdmin.objects.get(email=email)
+        except SuperAdmin.DoesNotExist:
+            return False
+        return getattr(admin, "is_active", False)
+
 
     def get_user(self, user_id):
         try:
-            return GenericUser.objects.get(pk=user_id)
+            return self.model.objects.get(pk=user_id)
         except self.model.DoesNotExist:
             return None
 

@@ -2,7 +2,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
-from apps.user_portal.manager.base_user import BaseUserManager
+from apps.user_portal.managers.base_user import BaseUserManager
 
 
 class CallableUser(AbstractBaseUser):

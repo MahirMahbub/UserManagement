@@ -6,7 +6,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
 from django.db import models
 
-from apps.user_portal.manager.teacher import TeacherManager
+from apps.user_portal.managers.teacher import TeacherManager
 
 
 class Teacher(AbstractBaseUser):
