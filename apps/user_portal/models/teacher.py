@@ -17,10 +17,10 @@ class Teacher(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     user_name = models.CharField(max_length=50, unique=True)
     user_id = models.CharField(max_length=50, unique=True)
-    special_key = models.CharField(max_length=255, unique=True)
+    special_key = models.BinaryField(max_length=255, unique=True)
     password = None
     last_login = None
-    salt = models.CharField(max_length=255, null=True)
+    salt = models.BinaryField(max_length=255, null=True)
 
     USERNAME_FIELD = 'user_name'
     REQUIRED_FIELD = 'email'

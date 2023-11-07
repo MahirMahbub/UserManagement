@@ -9,8 +9,8 @@ class SuperAdmin(AbstractBaseUser):
     email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     password = None
-    salt = models.CharField(max_length=255, null=True)
-    special_key = models.CharField(max_length=255, unique=True)
+    salt = models.BinaryField(max_length=255, null=True)
+    special_key = models.BinaryField(max_length=255, unique=True)
     last_login = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELD = USERNAME_FIELD
