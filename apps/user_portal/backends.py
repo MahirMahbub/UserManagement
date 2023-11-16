@@ -2,12 +2,12 @@ import bcrypt
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import BaseBackend, ModelBackend
 
-from apps.user_portal.models import GenericUser, SaltedPasswordModel
+from apps.user_portal.models import SaltedPasswordModel, CallableUser
 from apps.user_portal.models.super_admin import SuperAdmin
 
 
 class CustomAdminBackend(ModelBackend):
-    model = GenericUser
+    model = CallableUser
 
     def authenticate(self, request, username=None, password=None, **kwargs):
         try:
@@ -39,7 +39,6 @@ class CustomAdminBackend(ModelBackend):
         except SuperAdmin.DoesNotExist:
             return False
         return getattr(admin, "is_active", False)
-
 
     def get_user(self, user_id):
         try:

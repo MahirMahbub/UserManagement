@@ -7,8 +7,7 @@ from django.utils import timezone
 from model_utils.managers import InheritanceManager
 
 from apps.user_portal.models import SaltedPasswordModel
-from apps.user_portal.models.super_admin import SuperAdmin
-from apps.user_portal.models.teacher import Teacher
+
 
 
 class BaseUserManager(DjBaseUserManager, InheritanceManager):
@@ -18,13 +17,13 @@ class BaseUserManager(DjBaseUserManager, InheritanceManager):
     unique username but unique email.
     """
 
-    def create_user_(self, email=None, password=None, **extra_fields):
-        from apps.user_portal.models import GenericUser
-        now = timezone.now()
-        email = BaseUserManager.normalize_email(email)
-        u = GenericUser(email=email, is_superuser=False, **extra_fields)
-        u.save(using=self._db)
-        return u
+    # def create_user_(self, email=None, password=None, **extra_fields):
+    #     from apps.user_portal.models import GenericUser
+    #     now = timezone.now()
+    #     email = BaseUserManager.normalize_email(email)
+    #     u = GenericUser(email=email, is_superuser=False, **extra_fields)
+    #     u.save(using=self._db)
+    #     return u
 
     # def create_teacher(self, email=None, password=None, **extra_fields):
     #     now = timezone.now()
@@ -42,7 +41,6 @@ class BaseUserManager(DjBaseUserManager, InheritanceManager):
     #     return u
 
     def create_superuser(self, email=None, password=secrets.token_urlsafe(13), **extra_fields):
-        from apps.user_portal.models import GenericUser
         now = timezone.now()
         email = BaseUserManager.normalize_email(email)
 
@@ -54,13 +52,12 @@ class BaseUserManager(DjBaseUserManager, InheritanceManager):
         salted_password = SaltedPasswordModel(hashed_special_key=hashed_special_key)
         salted_password.set_password(password=password)
 
-        generic_user = GenericUser(email=email, is_superuser=True, **extra_fields)
 
+        from apps.user_portal.models.super_admin import SuperAdmin
         admin_user = SuperAdmin(email=email, special_key=special_key, salt=special_key_hash_salt)
 
         with transaction.atomic():
-            generic_user.save(using=self._db)
             salted_password.save(using=self._db)
             admin_user.save(using=self._db)
             print("Your New Password is ", password)
-        return generic_user
+        return admin_user

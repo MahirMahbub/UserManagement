@@ -10,7 +10,6 @@ from apps.user_portal.models.salted_password import SaltedPasswordModel
 
 class TeacherManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
-        from apps.user_portal.models import GenericUser
 
         if not email:
             raise ValueError('Users must have an email address')
@@ -27,13 +26,11 @@ class TeacherManager(BaseUserManager):
         salted_password.set_password(password=password)
 
         # now = timezone.now()
-        user = GenericUser(email=email, is_superuser=False)
 
         with transaction.atomic():
             salted_password.save()
-            user.save(using=self._db)
             teacher.save()
-        return user, salted_password
+        return salted_password
 
     # def create_superuser(self, email, password, **extra_fields):
     #     extra_fields.setdefault("is_staff", True)
