@@ -9,24 +9,78 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
+from datetime import timedelta
 from pathlib import Path
+
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, True),
+    DATABASE_ENGINE=(str, 'django.db.backends.sqlite3'),
+    DATABASE_NAME=(str, 'db.sqlite3'),
+    ALLOWED_HOSTS=(list[str], ['*']),
+    PAGE_SIZE=(int, 10),
+)
 
+# Take environment variables from .env file
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.dev'))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    "ROTATE_REFRESH_TOKENS": False,
+    "BLACKLIST_AFTER_ROTATION": False,
+    "UPDATE_LAST_LOGIN": True,
+
+    "ALGORITHM": "HS256",
+    "SIGNING_KEY": env('SECRET_KEY'),
+    "VERIFYING_KEY": "",
+    "AUDIENCE": None,
+    "ISSUER": None,
+    "JSON_ENCODER": None,
+    "JWK_URL": None,
+    "LEEWAY": 0,
+
+    "AUTH_HEADER_TYPES": ("Bearer",),
+    "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
+    "USER_ID_FIELD": "id",
+    "USER_ID_CLAIM": "user_id",
+    "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
+
+    "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
+    "TOKEN_TYPE_CLAIM": "token_type",
+    "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
+
+    "JTI_CLAIM": "jti",
+
+    "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
+    "SLIDING_TOKEN_LIFETIME": timedelta(minutes=60),
+    "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
+
+    # "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "serializers.MyTokenObtainPairSerializer",
+    "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
+    "TOKEN_VERIFY_SERIALIZER": "rest_framework_simplejwt.serializers.TokenVerifySerializer",
+    "TOKEN_BLACKLIST_SERIALIZER": "rest_framework_simplejwt.serializers.TokenBlacklistSerializer",
+    "SLIDING_TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainSlidingSerializer",
+    "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",
+}
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-8=^!&7s*jl5yj7#97vs#08s&+4xjjn#sy002h#me-!=jyzakj('
 
+SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+env('DEBUG')
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -37,10 +91,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework_simplejwt',
+    # 'corsheaders',
+    'rest_framework',
+    'drf_spectacular',
     'apps.user_portal',
 ]
 
-AUTH_USER_MODEL = "user_portal.GenericUser"
+AUTH_USER_MODEL = "user_portal.CallableUser"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -53,6 +111,9 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 TEMPLATES = [
     {
@@ -73,17 +134,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': env('DATABASE_ENGINE'),
+        'NAME': BASE_DIR / env('DATABASE_NAME'),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -103,18 +162,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
@@ -125,3 +182,94 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+REST_FRAMEWORK = {
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": env('PAGE_SIZE'),
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "utils.mixins.JWTAuthentication_"
+    ],
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'User Management API',
+    'DESCRIPTION': 'User Management API Documentation',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # OTHER SETTINGS
+}
+
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "verbose": {
+#             "format": "{levelname} {asctime} {module} {process:d} {thread:d} {message}",
+#             "style": "{",
+#         },
+#         "simple": {
+#             "format": "{levelname} {message}",
+#             "style": "{",
+#         },
+#     },
+#     "filters": {
+#         "require_debug_true": {
+#             "()": "django.utils.log.RequireDebugTrue",
+#         },
+#     },
+#     "handlers": {
+#         "console": {
+#             "level": "INFO",
+#             "filters": ["require_debug_true"],
+#             "class": "logging.StreamHandler",
+#             "formatter": "simple",
+#         },
+#         "file_error": {
+#             "level": "ERROR",
+#             "class": "logging.FileHandler",
+#             "filename": BASE_DIR / "logs" / "debug.log",
+#             "formatter": "simple",
+#         },
+#         "file_debug": {
+#             "level": "DEBUG",
+#             "class": "logging.FileHandler",
+#             "filename": BASE_DIR / "logs" / "debug.log",
+#             "formatter": "simple",
+#         },
+#         "mail_admins": {
+#             "level": "ERROR",
+#             "class": "django.utils.log.AdminEmailHandler",
+#         },
+#     },
+#     "loggers": {
+#         "django": {
+#             "handlers": ["console", "file_error", "file_debug"],
+#             "propagate": True,
+#         },
+#         "django.request": {
+#             "handlers": ["mail_admins"],
+#             "level": "ERROR",
+#             "propagate": False,
+#         },
+#     },
+# }
+
+# AUTHENTICATION_BACKENDS = [
+#
+#     'apps.user_portal.backends.CustomAdminBackend',
+#     "django.contrib.auth.backends.ModelBackend",
+# #
+# ]
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = 'mahirmahbub7@gmail.com'
+# EMAIL_HOST_PASSWORD =
+# EMAIL_USE_TLS = True
+# EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
