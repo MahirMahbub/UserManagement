@@ -14,6 +14,8 @@ class CallableUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
     password = None
+    is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=True)
     objects = BaseUserManager()
 
 
@@ -23,7 +25,7 @@ class AbstractUser(CallableUser):
     Making it abstract makes 1 email possible in each User subtype.
     """
 
-    is_superuser = False
+    is_superuser = None
     objects = BaseUserManager()
 
     def __unicode__(self):

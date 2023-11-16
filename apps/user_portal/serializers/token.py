@@ -11,14 +11,28 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from apps.user_portal.models import CallableUser, SaltedPasswordModel
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):  # noqa
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):  # noqa
     # def __init__(self, *args, **kwargs) -> None:
     #     # super().__init__(*args, **kwargs)
     #
     #     self.fields[self.username_field] = serializers.CharField(write_only=True)
     #     self.fields["password"] = PasswordField()
     # token_class = RefreshToken
+    def get_token(cls, user):
+        role = user.__class__.__name__
+        scopes = [
+            {
+                "codename": f"{permission.codename}",
+                "name": f"{permission.name}",
 
+            } for permission in user.user_permissions.all()
+        ]
+        token = super().get_token(user)
+        token['role'] = role
+        token['scopes'] = scopes
+
+
+        return token
     def validate(self, attrs: dict[str, Any]) -> dict[str, str]:
         # data = super().validate(attrs)
         # data={}
