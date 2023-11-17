@@ -8,7 +8,7 @@ from apps.user_portal.managers.base_user import BaseUserManager
 class CallableUser(AbstractBaseUser, PermissionsMixin):
     """
     The CallableUser class allows to get any type of user by calling
-    CallableUser.objects.get_subclass(email="my@email.dom") or
+    CallableUser.object(email="my@email.dom") or
     CallableUser.objects.filter(email__endswith="@email.dom").select_subclasses()
     """
     email = models.EmailField(unique=True)

@@ -14,11 +14,11 @@ def send_email(data):
         email = EmailMessage(
             subject=data['subject'],
             body=data['body'],
-            from_email=settings.EMAIL_HOST_USER,
+            from_email=settings.SERVER_EMAIL,
             to=[data['to_email']]
         )
         email.send()
-    except TypeError as e:
+    except AttributeError as e:
         return False
     return True
 
