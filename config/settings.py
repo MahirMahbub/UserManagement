@@ -92,6 +92,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework_simplejwt',
+    'anymail',
     # 'corsheaders',
     'rest_framework',
     'drf_spectacular',
@@ -266,10 +267,24 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_USER = 'mahirmahbub7@gmail.com'
-# EMAIL_HOST_PASSWORD =
-# EMAIL_USE_TLS = True
-# EMAIL_PORT = 587
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_HOST = 'localhost'
+# EMAIL_HOST_USER = 'mahirmahbub7@gmail.com'
+# # EMAIL_HOST_PASSWORD =
+# # EMAIL_USE_TLS = True
+# # EMAIL_PORT = 587
+# DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+ANYMAIL = {
+    "MAILGUN_API_KEY": env('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN')
+}
+EMAIL_BACKEND = env('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL = env('SERVER_EMAIL')
+
+ACCOUNT_SID=env('ACCOUNT_SID')
+AUTH_TOKEN=env('AUTH_TOKEN')
+COUNTRY_CODE=env('COUNTRY_CODE')
+TWILIO_WHATSAPP_NUMBER=env('TWILIO_WHATSAPP_NUMBER')
+TWILIO_PHONE_NUMBER=env('TWILIO_PHONE_NUMBER')
