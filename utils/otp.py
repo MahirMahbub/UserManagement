@@ -1,8 +1,9 @@
 # Download the helper library from https://www.twilio.com/docs/python/install
+import base64
 import os
 
 import pyotp
-from django.utils.baseconv import base64
+
 from environ import Env
 from pyotp import TOTP
 from twilio.rest import Client
@@ -57,10 +58,10 @@ class MessageHandler:
 def generate_otp_object(user: CallableUser) -> TOTP:
     env = Env()
     totp: TOTP = pyotp.TOTP(
-        s=base64.b32encode(user.email.encode()),
-        digits=env('OTP_DIGITS'),
-        interval=env('OTP_EXPIRY_TIME'),
-        name=user.email,
-        issuer=env('OTP_ISSUER'),
+        s=base64.b32encode(bytes(user.email, 'utf-8')).decode('utf-8'),
+        digits=int(env('OTP_DIGITS')),
+        interval=int(env('OTP_EXPIRY_TIME')),
+        name=str(user.email),
+        issuer=str(env('OTP_ISSUER')),
     )
     return totp
