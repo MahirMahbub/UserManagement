@@ -12,11 +12,12 @@ from apps.user_portal.protocols import AdminUser, DbCallableUser
 
 
 class AdminManager(BaseUserManager):
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email, password=None, is_active=True, **extra_fields):
         email: str = BaseUserManager.normalize_email(email)
         admin_user: AdminUser = self.model(
             email=email,
             phone_number=extra_fields.get('phone_number'),
+            is_active=is_active
         )
         admin_user.special_key = admin_user.generate_special_key()
 

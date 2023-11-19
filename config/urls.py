@@ -29,6 +29,6 @@ urlpatterns = [
     path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('v1/api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('v1/api/token/refresh/', CustomTokenObtainPairView.as_view(), name='token_refresh'),
-    path('v1/api/super-admin/', include("apps.user_portal.urls", namespace="user_portal")),
+    path('v1/api/', include("apps.user_portal.urls", namespace="user_portal")),
 
 ]

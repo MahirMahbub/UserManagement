@@ -13,7 +13,7 @@ class Admin(AbstractUser):
     password = None
     salt = models.BinaryField(max_length=255, null=True)
     special_key = models.BinaryField(max_length=255, unique=True)
-    is_auto_password = models.BooleanField(default=True)
+    is_auto_password = models.BooleanField(default=False)
     last_login = None
     phone_number = models.CharField(max_length=10, unique=True)
     USERNAME_FIELD = 'email'

@@ -9,7 +9,7 @@ from utils.email import send_email, get_uid_and_token_for_reset
 from utils.otp import MessageHandler, generate_otp_object
 
 
-class AdminSerializer(serializers.ModelSerializer):
+class CreateAdminBySuperAdminSerializer(serializers.ModelSerializer):
     """
     This serializer handles the creation of an admin
     """
@@ -20,7 +20,7 @@ class AdminSerializer(serializers.ModelSerializer):
         exclude: list[str] = ['groups', 'user_permissions', 'is_staff', 'is_superuser', 'is_active', 'last_login',
                               "is_auto_password"]
         extra_kwargs: dict[str, Any] = {
-            'is_otp_verification': {'write_only': True}
+            'is_otp_verification': {'write_only': True},
         }
 
     def create(self, validated_data: dict[str, Any]) -> Admin:
@@ -38,7 +38,7 @@ class AdminSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"message": "Can not generate the token"})
             env: Env = Env()
             try:
-                base_url: str = env('RESET_BASE_URL')
+                base_url: str = env('BASE_URL')
             except KeyError as ke:
                 raise serializers.ValidationError({"message": "Base URL is not set"})
             try:
@@ -74,6 +74,75 @@ class AdminSerializer(serializers.ModelSerializer):
             response.pop('special_key')
         except KeyError as ke:
             raise serializers.ValidationError({"message": "Representation Error. Can not represent the response data"})
-        response['message'] = ('Admin created successfully. Please check your email for your temp password and reset '
-                               'link.')
+        response['message'] = ('Admin created successfully. Please check your email or phone.')
+        return response
+
+class CreateAdminSerializer(serializers.ModelSerializer):
+    """
+    This serializer handles the creation of an admin
+    """
+    is_otp_verification: bool = serializers.BooleanField(default=False, write_only=True)
+    password: str = serializers.CharField(write_only=True)
+
+    class Meta:
+        model: Type[Admin] = Admin
+        exclude: list[str] = ['groups', 'user_permissions', 'is_staff', 'is_superuser', 'is_active', 'last_login',
+                              "is_auto_password"]
+        extra_kwargs: dict[str, Any] = {
+            'is_otp_verification': {'write_only': True},
+            'password': {'write_only': True},
+        }
+
+    def create(self, validated_data: dict[str, Any]) -> Admin:
+        is_otp_verification: bool = validated_data.pop('is_otp_verification')
+        user: Admin = Admin.objects.create_user(is_active=False, **validated_data)
+        callable_user: CallableUser = CallableUser.objects.filter(email=user.email).first()
+        if not callable_user:
+            raise serializers.ValidationError({"message": "Invalid Email"})
+        if not is_otp_verification:
+            try:
+                token, uid = get_uid_and_token_for_reset(callable_user)
+            except UrlSafeEncodeError as ue:
+                raise serializers.ValidationError({"message": "Can not generate the uid"})
+            except PasswordResetTokenGenerationError as pe:
+                raise serializers.ValidationError({"message": "Can not generate the token"})
+            env: Env = Env()
+            try:
+                base_url: str = env('BASE_URL')
+            except KeyError as ke:
+                raise serializers.ValidationError({"message": "Base URL is not set"})
+            try:
+                link: str = f"{base_url}/verify/{uid}/{token}"
+            except TypeError as te:
+                raise serializers.ValidationError({"message": "Can not create the verification link"})
+            body: str = 'Click Following Link to Verify Your Account ' + link
+            data: dict[str, str] = {
+                'subject': 'Verify Your Account',
+                'body': body,
+                'to_email': user.email
+            }
+            is_success: bool = send_email(data)
+            if not is_success:
+                raise serializers.ValidationError({"message": "Can not send the email"})
+        else:
+            try:
+                otp_object = generate_otp_object(callable_user)
+                otp = otp_object.now()
+                MessageHandler(phone_number=validated_data['phone_number'],
+                               otp=otp).send_otp_via_message()
+            except AttributeError as ae:
+                raise serializers.ValidationError({"message": "Can not send the OTP"})
+            except Exception as e:
+                raise serializers.ValidationError({"message": "Can not send the OTP"})
+        return user
+
+    def to_representation(self, instance: Admin) -> OrderedDict:
+
+        response: OrderedDict = super().to_representation(instance)
+        try:
+            response.pop('salt')
+            response.pop('special_key')
+        except KeyError as ke:
+            raise serializers.ValidationError({"message": "Representation Error. Can not represent the response data"})
+        response['message'] = ('Admin created successfully. Please check your email or phone.')
         return response
