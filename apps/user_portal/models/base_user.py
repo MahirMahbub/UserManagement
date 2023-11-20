@@ -35,12 +35,3 @@ class AbstractUser(CallableUser):
 
     class Meta:
         abstract = True
-
-#
-# class GenericUser(AbstractUser, PermissionsMixin):
-#     """
-#     A GenericUser is any type of system user (such as an admin).
-#     This is the one that should be referenced in settings.AUTH_USER_MODEL
-#     """
-#     is_superuser = models.BooleanField(default=False)
-#     is_staff = models.BooleanField(default=True)

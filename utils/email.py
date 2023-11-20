@@ -1,15 +1,17 @@
-import environ
+from typing import Mapping, Any, NoReturn
+
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from apps.user_portal.exceptions import UrlSafeEncodeError, PasswordResetTokenGenerationError
-from apps.user_portal.models import CallableUser
 from config import settings
+from utils.custom_types import EmailVerificationInfo
+from utils.inherit_types import GenericUser
 
 
-def send_email(data):
+def send_email(data: Mapping[str, Any]) -> bool:
     try:
         email = EmailMessage(
             subject=data['subject'],
@@ -23,7 +25,7 @@ def send_email(data):
     return True
 
 
-def get_uid_and_token_for_reset(callable_user: CallableUser) -> (str, str):
+def get_uid_and_token_for_reset(callable_user: GenericUser) -> NoReturn | EmailVerificationInfo:
     try:
         uid: str = urlsafe_base64_encode(force_bytes(callable_user.id))
     except TypeError as e:

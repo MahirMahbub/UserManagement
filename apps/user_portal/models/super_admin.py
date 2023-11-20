@@ -6,9 +6,10 @@ from django.db import models
 from apps.user_portal.managers.super_admin import SuperAdminManager
 from apps.user_portal.managers.teacher import TeacherManager
 from apps.user_portal.models import AbstractUser
+from utils.db_mixins import BaseModelMixin
 
 
-class SuperAdmin(AbstractUser):
+class SuperAdmin(AbstractUser, BaseModelMixin):
     # email = models.EmailField(unique=True)
     is_active = models.BooleanField(default=True)
     password = None
@@ -23,4 +24,5 @@ class SuperAdmin(AbstractUser):
 
     def generate_special_key(self):
         salt = bcrypt.gensalt()
-        return bcrypt.hashpw(self.email.encode('utf-8'), salt)
+        return (bcrypt.hashpw
+                (self.email.encode('utf-8'), salt))

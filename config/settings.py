@@ -12,13 +12,14 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 import os
 from datetime import timedelta
 from pathlib import Path
+from typing import Any, IO, List, Annotated, Dict
 
 import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
-env = environ.Env(
+env: environ.Env = environ.Env(
     # set casting, default value
     DEBUG=(bool, True),
     DATABASE_ENGINE=(str, 'django.db.backends.sqlite3'),
@@ -33,7 +34,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env.dev'))
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 
-SIMPLE_JWT = {
+SIMPLE_JWT: dict[str, Any] = {
     "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
@@ -76,15 +77,15 @@ SIMPLE_JWT = {
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY: IO[str] = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
-env('DEBUG')
+DEBUG: IO[bool] = env('DEBUG')
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS: IO[list[str]] = env('ALLOWED_HOSTS')
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -99,9 +100,9 @@ INSTALLED_APPS = [
     'apps.user_portal',
 ]
 
-AUTH_USER_MODEL = "user_portal.CallableUser"
+AUTH_USER_MODEL: str = "user_portal.CallableUser"
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -111,12 +112,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'config.urls'
+ROOT_URLCONF: str = 'config.urls'
 
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_URL: Annotated[str, os.PathLike] = "/media/"
+MEDIA_ROOT: Path = BASE_DIR / "media"
 
-TEMPLATES = [
+TEMPLATES: list[dict[str, Any] | None] = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates']
@@ -138,7 +139,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES = {
+DATABASES: dict[str, Any] = {
     'default': {
         'ENGINE': env('DATABASE_ENGINE'),
         'NAME': BASE_DIR / env('DATABASE_NAME'),
@@ -148,7 +149,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
+AUTH_PASSWORD_VALIDATORS: list[dict[str, str] | None] = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
     },
@@ -166,34 +167,34 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE: str = 'en-us'
 
-TIME_ZONE = 'Asia/Dhaka'
+TIME_ZONE: str = 'Asia/Dhaka'
 
-USE_I18N = True
+USE_I18N: bool = True
 
-USE_TZ = True
+USE_TZ: bool = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL: Annotated[str, Path] = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'
 
-REST_FRAMEWORK = {
+REST_FRAMEWORK: dict[str, Any] = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": env('PAGE_SIZE'),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "utils.mixins.JWTAuthentication_"
+        "utils.mixins.CustomJWTAuthentication"
     ],
 }
 
-SPECTACULAR_SETTINGS = {
+SPECTACULAR_SETTINGS: dict[str, Any] = {
     'TITLE': 'User Management API',
     'DESCRIPTION': 'User Management API Documentation',
     'VERSION': '1.0.0',
@@ -263,7 +264,7 @@ SPECTACULAR_SETTINGS = {
 # #
 # ]
 
-STATICFILES_DIRS = [
+STATICFILES_DIRS: list[str|None] = [
     os.path.join(BASE_DIR, "static"),
 ]
 
@@ -275,16 +276,16 @@ STATICFILES_DIRS = [
 # # EMAIL_PORT = 587
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-ANYMAIL = {
+ANYMAIL: dict[str, Any] = {
     "MAILGUN_API_KEY": env('MAILGUN_API_KEY'),
     "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN')
 }
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-SERVER_EMAIL = env('SERVER_EMAIL')
+EMAIL_BACKEND: IO[str] = env('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL: IO[str]  = env('DEFAULT_FROM_EMAIL')
+SERVER_EMAIL: IO[str] = env('SERVER_EMAIL')
 
-ACCOUNT_SID=env('ACCOUNT_SID')
-AUTH_TOKEN=env('AUTH_TOKEN')
-COUNTRY_CODE=env('COUNTRY_CODE')
-TWILIO_WHATSAPP_NUMBER=env('TWILIO_WHATSAPP_NUMBER')
-TWILIO_PHONE_NUMBER=env('TWILIO_PHONE_NUMBER')
+ACCOUNT_SID: IO[str] = env('ACCOUNT_SID')
+AUTH_TOKEN: IO[str] = env('AUTH_TOKEN')
+COUNTRY_CODE: IO[str] = env('COUNTRY_CODE')
+TWILIO_WHATSAPP_NUMBER: IO[str] = env('TWILIO_WHATSAPP_NUMBER')
+TWILIO_PHONE_NUMBER: IO[str] = env('TWILIO_PHONE_NUMBER')

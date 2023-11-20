@@ -8,9 +8,10 @@ from django.db import models
 
 from apps.user_portal.managers.teacher import TeacherManager
 from apps.user_portal.models import AbstractUser
+from utils.db_mixins import BaseModelMixin
 
 
-class Teacher(AbstractUser):
+class Teacher(AbstractUser, BaseModelMixin):
     """
     A Teacher is a user that can create and manage courses.
     """

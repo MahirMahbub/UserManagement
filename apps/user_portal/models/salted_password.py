@@ -1,10 +1,10 @@
 import bcrypt
-from argon2 import PasswordHasher
 from django.db import models
-from hashid_field import HashidField
+
+from utils.db_mixins import BaseModelMixin
 
 
-class SaltedPasswordModel(models.Model):
+class SaltedPasswordModel(BaseModelMixin):
     """
     This model is used to store a salted password.
     """
@@ -31,6 +31,3 @@ class SaltedPasswordModel(models.Model):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
         # self.salt = salt
         self.password = hashed_password
-
-    # class Meta:
-    #     abstract = True
