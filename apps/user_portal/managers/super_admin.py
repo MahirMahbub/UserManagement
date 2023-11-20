@@ -9,7 +9,6 @@ from pydantic import EmailStr
 
 from apps.user_portal.exceptions import SuperAdminCreationError
 from apps.user_portal.models import SaltedPasswordModel
-from utils.protocols import DbCallableUser
 from utils.custom_types import Params
 from utils.inherit_types import ChildUser
 from utils.permission_mixins import PermissionMixin
@@ -72,7 +71,8 @@ class SuperAdminManager(BaseUserManager, PermissionMixin):
             except (DatabaseError, IntegrityError) as save_err:
                 raise SuperAdminCreationError("can not save user objects") from save_err
 
-            callable_user_object: DbCallableUser = super_admin_user_object.callableuser_ptr
+            from apps.user_portal.models import CallableUser
+            callable_user_object: CallableUser = super_admin_user_object.callableuser_ptr
             callable_user_object.is_superuser = True
             callable_user_object.is_staff = True
 
