@@ -16,6 +16,7 @@ class SuperAdmin(AbstractUser, BaseModelMixin):
     salt = models.BinaryField(max_length=255, null=True)
     special_key = models.BinaryField(max_length=255, unique=True)
     is_auto_password = models.BooleanField(default=True)
+    phone_number = models.CharField(max_length=20, null=True)
     last_login = None
     USERNAME_FIELD = 'email'
     REQUIRED_FIELD = USERNAME_FIELD

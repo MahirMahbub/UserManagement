@@ -23,6 +23,7 @@ class Teacher(AbstractUser, BaseModelMixin):
     password = None
     # last_login = None
     salt = models.BinaryField(max_length=255, null=True)
+    phone_number = models.CharField(max_length=20, null=True)
 
     USERNAME_FIELD = 'user_name'
     REQUIRED_FIELD = 'email'
