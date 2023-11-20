@@ -1,0 +1,24 @@
+digraph "main" {
+
+splines  = ortho;
+fontname = "Inconsolata";
+
+node [colorscheme = ylgnbu4];
+edge [colorscheme = dark28, dir = both];
+
+auth_permission                           [shape = record, pos = "8.840,6.806!"     , label = "{ auth_permission |  content_type_id : integer\l  codename : varchar(100)\l  name : varchar(255)\l| id : integer\l }"];
+django_migrations                         [shape = record, pos = "2.403,1.181!"     , label = "{ django_migrations |  app : varchar(255)\l  name : varchar(255)\l  applied : datetime\l| id : integer\l }"];
+user_portal_admin                         [shape = record, pos = "3.931,4.118!"     , label = "{ user_portal_admin |  is_active : bool\l  salt : blob\l  special_key : blob\l  is_auto_password : bool\l| callableuser_ptr_id : bigint\l }"];
+user_portal_callableuser                  [shape = record, pos = "3.060,6.806!"     , label = "{ user_portal_callableuser |  last_login : datetime\l  is_superuser : bool\l  email : varchar(254)\l| id : integer\l }"];
+user_portal_callableuser_user_permissions [shape = record, pos = "6.875,3.799!"     , label = "{ user_portal_callableuser_user_permissions |  callableuser_id : bigint\l  permission_id : integer\l| id : integer\l }"];
+user_portal_saltedpasswordmodel           [shape = record, pos = "-2.736,1.181!"    , label = "{ user_portal_saltedpasswordmodel |  password : blob\l  hashed_special_key : blob\l  is_enabled : bool\l| id : integer\l }"];
+user_portal_superadmin                    [shape = record, pos = "0.361,4.118!"     , label = "{ user_portal_superadmin |  is_active : bool\l  salt : blob\l  special_key : blob\l  is_auto_password : bool\l| callableuser_ptr_id : bigint\l }"];
+user_portal_teacher                       [shape = record, pos = "-2.736,4.278!"    , label = "{ user_portal_teacher |  is_active : bool\l  user_name : varchar(50)\l  user_id : varchar(50)\l  special_key : blob\l  salt : blob\l| callableuser_ptr_id : bigint\l }"];
+
+user_portal_admin                         -> user_portal_callableuser                  [color = "#595959", style = solid , arrowtail = none    , arrowhead = normal  , taillabel = "", label = "callableuser_ptr_id:id", headlabel = ""];
+user_portal_callableuser_user_permissions -> auth_permission                           [color = "#595959", style = solid , arrowtail = none    , arrowhead = normal  , taillabel = "", label = "permission_id:id", headlabel = ""];
+user_portal_callableuser_user_permissions -> user_portal_callableuser                  [color = "#595959", style = solid , arrowtail = none    , arrowhead = normal  , taillabel = "", label = "callableuser_id:id", headlabel = ""];
+user_portal_superadmin                    -> user_portal_callableuser                  [color = "#595959", style = solid , arrowtail = none    , arrowhead = normal  , taillabel = "", label = "callableuser_ptr_id:id", headlabel = ""];
+user_portal_teacher                       -> user_portal_callableuser                  [color = "#595959", style = solid , arrowtail = none    , arrowhead = normal  , taillabel = "", label = "callableuser_ptr_id:id", headlabel = ""];
+
+}
