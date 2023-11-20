@@ -1,5 +1,6 @@
 # Download the helper library from https://www.twilio.com/docs/python/install
 import base64
+from typing import Any, NoReturn
 
 import pyotp
 from django.conf import settings
@@ -8,6 +9,7 @@ from pyotp import TOTP
 from twilio.rest import Client
 from twilio.rest.chat.v2.service.channel.message import MessageInstance
 
+from apps.user_portal.exceptions import SendOTPError
 from apps.user_portal.models import CallableUser
 
 
@@ -36,20 +38,26 @@ from apps.user_portal.models import CallableUser
 
 
 class MessageHandler:
-    def __init__(self, phone_number: int, otp: str) -> None:
+    def __init__(self, phone_number: str, otp: str) -> None:
+
         self.phone_number = phone_number
         self.otp = otp
 
     def send_otp_via_message(self) -> MessageInstance:
+
         client: Client = Client(settings.ACCOUNT_SID, settings.AUTH_TOKEN)
+
         message: MessageInstance = client.messages.create(body=f'your otp is:{self.otp}',
                                                           from_=f"{settings.TWILIO_PHONE_NUMBER}",
                                                           to=f"{settings.COUNTRY_CODE}{self.phone_number}")
+
         return message
 
 
 def generate_otp_object(user: CallableUser) -> TOTP:
+
     env = Env()
+
     totp: TOTP = pyotp.TOTP(
         s=base64.b32encode(bytes(user.email, 'utf-8')).decode('utf-8'),
         digits=int(env('OTP_DIGITS')),
@@ -57,4 +65,18 @@ def generate_otp_object(user: CallableUser) -> TOTP:
         name=str(user.email),
         issuer=str(env('OTP_ISSUER')),
     )
+
     return totp
+
+
+def send_otp(user_object: CallableUser, phone_number: str) -> None | NoReturn:
+
+    try:
+        otp_object = generate_otp_object(user_object)
+        otp = otp_object.now()
+        MessageHandler(phone_number=phone_number,
+                       otp=otp).send_otp_via_message()
+    except AttributeError as ae:
+        raise SendOTPError("Can not send the OTP") from ae
+    except ValueError as ve:
+        raise SendOTPError("Can not send the OTP") from ve

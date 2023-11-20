@@ -3,18 +3,7 @@ from typing import Protocol
 from django.db.models import Manager
 from rest_framework.authtoken.models import Token
 
-
-class AutoUser(Protocol):
-    special_key: bytes
-    salt: bytes
-    is_auto_password: bool
-
-    def save(self, *args, **kwargs):
-        pass
-
-
-class JwtRefreshTokenObject(Protocol):
-    access_token: str
+from apps.user_portal.models import CallableUser
 
 
 class RelatedManager(Protocol):
@@ -28,6 +17,22 @@ class DbCallableUser(Protocol):
 
     def save(self, *args, **kwargs):
         pass
+
+
+class AutoUser(Protocol):
+    email: str
+    special_key: bytes
+    salt: bytes
+    is_auto_password: bool
+    callableuser_ptr: CallableUser
+    phone_number: str
+
+    def save(self, *args, **kwargs):
+        pass
+
+
+class JwtRefreshTokenObject(Protocol):
+    access_token: str
 
 
 class AdminUser(Protocol):
@@ -45,6 +50,17 @@ class AdminUser(Protocol):
         pass
 
 
+# class ChildUser(Protocol):
+#     email: str
+#     special_key: bytes
+#     salt: bytes
+#     phone_number: str
+#     callableuser_ptr: DbCallableUser
+#
+#     def save(self, *args, **kwargs):
+#         pass
+
+
 class SequenceToken(Protocol):
     def __getitem__(self, item):
         pass
@@ -55,5 +71,3 @@ class SequenceToken(Protocol):
     @classmethod
     def generate_key(cls):
         pass
-
-

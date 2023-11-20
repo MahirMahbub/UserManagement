@@ -16,3 +16,7 @@ class SuperAdminCreationError(Exception):
 
 class TeacherCreationError(Exception):
     pass
+
+
+class SendOTPError(Exception):
+    pass

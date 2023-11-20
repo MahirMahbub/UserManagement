@@ -11,11 +11,13 @@ class CallableUser(AbstractBaseUser, PermissionsMixin):
     CallableUser.object(email="my@email.dom") or
     CallableUser.objects.filter(email__endswith="@email.dom").select_subclasses()
     """
+
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
     password = None
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=True)
+
     objects = BaseUserManager()
 
 
@@ -26,12 +28,12 @@ class AbstractUser(CallableUser):
     """
 
     is_superuser = None
+
     objects = BaseUserManager()
 
     def __unicode__(self):
-        return self.email
 
-    # REQUIRED_FIELD = [USERNAME_FIELD, "password"]
+        return self.email
 
     class Meta:
         abstract = True

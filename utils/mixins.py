@@ -11,7 +11,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.exceptions import AuthenticationFailed, TokenError, InvalidToken
 from rest_framework_simplejwt.settings import api_settings
 
-from apps.user_portal.protocols import SequenceToken
+from utils.protocols import SequenceToken
 from utils.custom_types import Params, DetailedMessage
 from utils.inherit_types import ChildUser
 
@@ -34,20 +34,23 @@ class CustomJWTAuthentication(JWTAuthentication):
     token provided in a request header.
     """
     from apps.user_portal.models import CallableUser
-    # from custom_types import GenericUser, Params, DetailedMessage, ChildUser
+
     user_model: Type[AbstractBaseUser]
 
     www_authenticate_realm = "api"
     media_type = "application/json"
-    user_class= CallableUser
+    user_class = CallableUser
 
     def __init__(self, *args: Params.args, **kwargs: Params.kwargs) -> None:
 
         super().__init__(*args, **kwargs)
+
         from apps.user_portal.models import CallableUser
+
         self.user_model = CallableUser
 
-    def authenticate(self, request: Request) -> AbstractBaseUser | NoReturn:
+    def authenticate(self, request: Request) -> AbstractBaseUser | NoReturn | None:
+
         header: bytes | None = self.get_header(request)
         if header is None:
             return None
@@ -55,16 +58,18 @@ class CustomJWTAuthentication(JWTAuthentication):
         raw_token: bytes | None = self.get_raw_token(header)
         if raw_token is None:
             return None
+
         try:
             validated_token: SequenceToken = self.get_validated_token(raw_token)
         except InvalidToken as ae:
             raise ae
+
         try:
             return self.get_user(validated_token), validated_token
-        except AuthenticationFailed as ae:
-            raise ae
         except InvalidToken as ie:
             raise ie
+        except AuthenticationFailed as ae:
+            raise ae
 
     def authenticate_header(self, request: Request) -> str:
         return '{} realm="{}"'.format(
