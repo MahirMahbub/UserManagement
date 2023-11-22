@@ -139,10 +139,22 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-DATABASES: dict[str, Any] = {
-    'default': {
-        'ENGINE': env('DATABASE_ENGINE'),
-        'NAME': BASE_DIR / env('DATABASE_NAME'),
+# DATABASES: dict[str, Any] = {
+#     'default': {
+#         'ENGINE': env('DATABASE_ENGINE'),
+#         'NAME': BASE_DIR / env('DATABASE_NAME'),
+#     }
+#
+# }
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": config("DATABASE_NAME"),
+        "USER": config("DATABASE_USER"),
+        "PASSWORD": config("DATABASE_PASSWORD"),
+        "HOST": config("DATABASE_HOST"),
+        "PORT": config("DATABASE_PORT"),
     }
 }
 
@@ -289,3 +301,6 @@ AUTH_TOKEN: IO[str] = env('AUTH_TOKEN')
 COUNTRY_CODE: IO[str] = env('COUNTRY_CODE')
 TWILIO_WHATSAPP_NUMBER: IO[str] = env('TWILIO_WHATSAPP_NUMBER')
 TWILIO_PHONE_NUMBER: IO[str] = env('TWILIO_PHONE_NUMBER')
+
+CELERY_BROKER_URL=env('CELERY_BROKER_URL')
+CELERY_RESULT_BACKEND=env('CELERY_RESULT_BACKEND')

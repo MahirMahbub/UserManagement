@@ -1,0 +1,130 @@
+version: '3'
+
+services:
+#  nginx:
+#    build:
+#      context: ./nginx
+#      dockerfile: Dockerfile.dev
+#    ports:
+#      - 5001:80
+#    volumes:
+#      - prod_static_volume:/home/app/static
+#      - prod_media_volume:/home/app/media
+#    depends_on:
+#      - one_go_dev_api
+#    restart: "on-failure"
+  user_management_api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "user_management_api"
+    command: sh -c "gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - ./:/home/app/
+      - prod_static_volume:/home/app/static
+      - prod_media_volume:/home/app/media
+    env_file:
+      - .env.dev
+    networks:
+      - user_management_network
+    ports:
+      - "5001:8000"
+    restart: always
+    depends_on:
+      - user_management_db
+
+  user_management_db:
+    image: postgres:13.0-alpine
+    ports:
+      - "5002:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data/
+    env_file:
+      - .env.dev.db
+    restart: "on-failure"
+    networks:
+      - user_management_network
+  user_management_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "user_management_celery"
+    command: sh -c "celery -A config worker -l info"
+    volumes:
+      - ./:/home/app/
+      - prod_static_volume:/home/app/static
+      - prod_media_volume:/home/app/media
+    env_file:
+      - .env.dev
+    networks:
+      - user_management_network
+    ports:
+      - "5003:8000"
+    restart: always
+    depends_on:
+      - user_management_db
+      - user_management_redis
+  user_management_redis:
+    hostname: "user_management_redis"
+    container_name: "user_management_redis"
+    image: redis:latest
+    command: /bin/bash -c "redis-server --requirepass $$REDIS_PASSWORD"
+    env_file:
+      - redis.env
+    networks:
+      - user_management_network
+    ports:
+      - "6379:6379"
+    restart: on-failure
+    volumes:
+      - redis_data:/data
+    depends_on:
+      - user_management_rabbitmq
+
+  user_management_rabbitmq:
+    hostname: "user_management_rabbitmq"
+    container_name: "user_management_rabbitmq"
+    image: rabbitmq:3.8.9-management
+    env_file:
+      - rabbitmq.env
+    ports:
+      - "4369:4369"
+      - "25672:25672"
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - user_management_network
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:15672"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+#      - rabbitmq_logs:/var/log/rabbitmq
+#      - rabbitmq_conf:/etc/rabbitmq
+#      - rabbitmq_definitions:/etc/rabbitmq/definitions.json
+  user_management_flower:
+    container_name: "user_management_flower"
+    image: mher/flower:1.2
+    restart: on-failure
+    env_file:
+      - celery-flower.env
+    ports:
+      - "5557:5555"
+    depends_on:
+      - user_management_redis
+      - user_management_rabbitmq
+      - user_management_worker
+    networks:
+      - user_management_network
+    volumes:
+      - user_management_flower_data:/data
+volumes:
+  postgres_dev_data:
+  prod_static_volume:
+  prod_media_volume:
+  redis_data:
+  rabbitmq_data:
+  user_management_flower_data:
