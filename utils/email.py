@@ -24,6 +24,9 @@ def send_email(data: Mapping[str, Any]) -> bool:
     except AttributeError as e:
         return False
 
+    except Exception as e:
+        return False
+
     return True
 
 

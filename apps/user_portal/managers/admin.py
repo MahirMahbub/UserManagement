@@ -31,7 +31,7 @@ class AdminManager(BaseUserManager, PermissionMixin):
 
         admin_user_object: ChildUser = self.model(
             email=email,
-            phone_number=extra_fields.get('phone_number'),
+            # phone_number=extra_fields.get('phone_number'),
             **extra_fields
         )
         admin_user_object.special_key = admin_user_object.generate_special_key()

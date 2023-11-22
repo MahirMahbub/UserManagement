@@ -30,9 +30,9 @@ class SuperAdminManager(BaseUserManager, PermissionMixin):
             raise ValueError('Users must have an email address')
         email: str = SuperAdminManager.normalize_email(email)
 
-        super_admin_user_object: ChildUser = self.model(
+        from apps.user_portal.models import SuperAdmin
+        super_admin_user_object: ChildUser = SuperAdmin(
             email=email,
-            **extra_fields
         )
         super_admin_user_object.special_key = super_admin_user_object.generate_special_key()
 

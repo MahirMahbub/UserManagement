@@ -46,7 +46,7 @@ class CreateAdminBySuperAdminSerializer(serializers.ModelSerializer):
                    email_verification by setting is_otp_verification to True or False"})
 
         user: ChildUser = Admin.objects.create_user(**validated_data)
-        callable_user: CallableUser = user.callable_user
+        callable_user: CallableUser = user.callableuser_ptr
 
         if not callable_user:
             raise serializers.ValidationError({"message": "Invalid Email"})
