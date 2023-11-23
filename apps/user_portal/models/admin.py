@@ -17,7 +17,7 @@ class Admin(AbstractUser, BaseModelMixin, HelperMixin):
     special_key = models.BinaryField(max_length=255, unique=True)
     is_auto_password = models.BooleanField(default=False)
     last_login = None
-    phone_number = models.CharField(max_length=10, unique=True)
+    phone_number = models.CharField(max_length=10)
     USERNAME_FIELD = 'email'
     REQUIRED_FIELD = USERNAME_FIELD
 

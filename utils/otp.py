@@ -6,6 +6,7 @@ import pyotp
 from django.conf import settings
 from environ import Env
 from pyotp import TOTP
+from twilio.base.exceptions import TwilioRestException
 from twilio.rest import Client
 from twilio.rest.chat.v2.service.channel.message import MessageInstance
 
@@ -80,3 +81,5 @@ def send_otp(user_object: CallableUser, phone_number: str) -> None | NoReturn:
         raise SendOTPError("Can not send the OTP") from ae
     except ValueError as ve:
         raise SendOTPError("Can not send the OTP") from ve
+    except TwilioRestException as te:
+        raise SendOTPError("Can not send the OTP") from te

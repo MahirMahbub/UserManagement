@@ -298,6 +298,7 @@ class UserPasswordResetByOTPVerificationSerializer(serializers.Serializer):
         except Exception as e:
             raise serializers.ValidationError({"message": "Error Checking OTP"})
 
+
         if not otp_object.verify(otp):
             raise serializers.ValidationError({"message": "Invalid OTP"})
 

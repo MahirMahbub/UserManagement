@@ -81,7 +81,7 @@ class UserPasswordResetByOTPVerificationViewSet(viewsets.GenericViewSet):
     def create(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({'message': 'OTP has been send. Please check your Phone'}, status=status.HTTP_200_OK)
+        return Response({'message': 'OTP Verification Complete. Password is reset.'}, status=status.HTTP_200_OK)
 
 
 class UserAccountActivationByOTPVerificationViewSet(viewsets.GenericViewSet):
@@ -93,7 +93,7 @@ class UserAccountActivationByOTPVerificationViewSet(viewsets.GenericViewSet):
     def create(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        return Response({'message': 'OTP has been send. Please check your Phone'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Account verified by OTP'}, status=status.HTTP_200_OK)
 
 
 class UserAccountActivationByEmailVerificationViewSet(viewsets.GenericViewSet):
