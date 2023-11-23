@@ -1,15 +1,14 @@
-from typing import Any, List, Dict
+from typing import Any
 
 import bcrypt
-from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import update_last_login
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, PasswordField
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.settings import api_settings
-from rest_framework_simplejwt.tokens import RefreshToken, Token
+from rest_framework_simplejwt.tokens import Token
 
 from apps.user_portal.models import CallableUser, SaltedPasswordModel
-from apps.user_portal.protocols import JwtRefreshTokenObject
+from utils.protocols import JwtRefreshTokenObject
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):

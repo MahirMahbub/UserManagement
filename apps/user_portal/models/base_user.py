@@ -11,11 +11,13 @@ class CallableUser(AbstractBaseUser, PermissionsMixin):
     CallableUser.object(email="my@email.dom") or
     CallableUser.objects.filter(email__endswith="@email.dom").select_subclasses()
     """
+
     email = models.EmailField(unique=True)
     USERNAME_FIELD = 'email'
     password = None
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=True)
+
     objects = BaseUserManager()
 
 
@@ -26,21 +28,12 @@ class AbstractUser(CallableUser):
     """
 
     is_superuser = None
+
     objects = BaseUserManager()
 
     def __unicode__(self):
-        return self.email
 
-    # REQUIRED_FIELD = [USERNAME_FIELD, "password"]
+        return self.email
 
     class Meta:
         abstract = True
-
-#
-# class GenericUser(AbstractUser, PermissionsMixin):
-#     """
-#     A GenericUser is any type of system user (such as an admin).
-#     This is the one that should be referenced in settings.AUTH_USER_MODEL
-#     """
-#     is_superuser = models.BooleanField(default=False)
-#     is_staff = models.BooleanField(default=True)

@@ -1,51 +1,99 @@
 import secrets
+from typing import NoReturn
 
 import bcrypt
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import Permission
-from django.db import transaction
+from django.db import transaction, DatabaseError, IntegrityError
+from pydantic import EmailStr
 
+from apps.user_portal.exceptions import SuperAdminCreationError
 from apps.user_portal.models import SaltedPasswordModel
+from utils.custom_types import Params
+from utils.inherit_types import ChildUser
+from utils.permission_mixins import PermissionMixin
 
 
-class SuperAdminManager(BaseUserManager):
-    def create_superuser(self, email=None, password=None , **extra_fields):
-        email = SuperAdminManager.normalize_email(email)
+class SuperAdminManager(BaseUserManager, PermissionMixin):
+    """
+    Manager for SuperAdmin Users.
+    """
+    def create_superuser(self, email: EmailStr, password: str | None = None,
+                         **extra_fields: Params.kwargs) -> ChildUser | NoReturn:
+        """
+        Create and save a SuperAdmin User with the given email, password and other information.
+        """
+
+        is_password_auto_generated: bool = False
+
+        if not email:
+            raise ValueError('Users must have an email address')
+        email: str = SuperAdminManager.normalize_email(email)
+
         from apps.user_portal.models import SuperAdmin
-        admin_user = SuperAdmin(
-            email=email
+        super_admin_user_object: ChildUser = SuperAdmin(
+            email=email,
         )
-        admin_user.special_key = admin_user.generate_special_key()
+        super_admin_user_object.special_key = super_admin_user_object.generate_special_key()
 
-        salt = bcrypt.gensalt()
-        admin_user.salt = salt
+        try:
+            salt: bytes = bcrypt.gensalt()
+        except ValueError as val_err:
+            raise SuperAdminCreationError("salt generation error") from val_err
+        super_admin_user_object.salt = salt
 
-        hashed_special_key = bcrypt.hashpw(admin_user.special_key, salt)
-        salted_password = SaltedPasswordModel(hashed_special_key=hashed_special_key)
+        try:
+            hashed_special_key: bytes = bcrypt.hashpw(super_admin_user_object.special_key, salt)
+        except TypeError as type_err:
+            raise SuperAdminCreationError("salt hashing error") from type_err
 
-        is_password_auto_generated = False
+        try:
+            salted_password_object: SaltedPasswordModel = SaltedPasswordModel(hashed_special_key=hashed_special_key)
+        except (KeyError, ValueError, TypeError, IndexError) as salt_password_err:
+            raise SuperAdminCreationError("password model creation error") from salt_password_err
+
         if password is None:
             is_password_auto_generated = True
-            password = secrets.token_urlsafe(13)
-        salted_password.set_password(password=password)
+
+            try:
+                password: str = secrets.token_urlsafe(13)
+            except (AssertionError, ValueError, TypeError, IndexError) as asser_err:
+                raise SuperAdminCreationError("default password generation error") from asser_err
+
+        salted_password_object.set_password(password=password)
 
         with transaction.atomic():
-            salted_password.save(using=self._db)
-            admin_user.is_superuser = True
-            admin_user.save(using=self._db)
-            if is_password_auto_generated:
-                print("Your New Password is ", password)
-            callable_user = admin_user.callableuser_ptr
-            all_permission = self.get_required_permissions()
-            # callable_user.email = email
-            for permission in all_permission:
-                callable_user.user_permissions.add(permission)
-            # callable_user.save(using=self._db)
-        return admin_user
+            super_admin_user_object.is_superuser = True
+            try:
+                salted_password_object.save(using=self._db)
+                super_admin_user_object.save(using=self._db)
+                super_admin_user_object.refresh_from_db()
+            except (DatabaseError, IntegrityError) as save_err:
+                raise SuperAdminCreationError("can not save user objects") from save_err
 
-    def create_user(self, email, password, **extra_fields):
+            from apps.user_portal.models import CallableUser
+            callable_user_object: CallableUser = super_admin_user_object.callableuser_ptr
+            callable_user_object.is_superuser = True
+            callable_user_object.is_staff = True
+
+            required_permissions: list[Permission] = self.get_required_permissions()
+
+            try:
+                for permission in required_permissions:
+                    callable_user_object.user_permissions.add(permission)
+                callable_user_object.save(using=self._db)
+            except (DatabaseError, IntegrityError, TypeError) as add_permission_err:
+                raise SuperAdminCreationError("can not add permission") from add_permission_err
+
+        if is_password_auto_generated:
+            print("Your New Password is ", password)
+
+        return super_admin_user_object
+
+    def create_user(self, email: EmailStr, password: str, **extra_fields: Params.kwargs) -> ChildUser | NoReturn:
+        """
+        Create and save a SuperAdmin User with the given email, password and other information.
+        It is a same implementation or call of create_superuser method.
+        """
+
         self.create_superuser(email=email, password=password, extra_fields=extra_fields)
-
-    @staticmethod
-    def get_required_permissions():
-        return Permission.objects.all()
