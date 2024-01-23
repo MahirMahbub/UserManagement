@@ -4,7 +4,7 @@ from rest_framework import viewsets, status, serializers
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from apps.user_portal.serializers.authentication import SendPasswordResetByEmailSerializer, \
+from apps.user_portal.serializers.authentication import SendAccountActivationByEmailSerializer, SendPasswordResetByEmailSerializer, \
     UserPasswordResetByEmailVerificationSerializer, SendPasswordResetByOTPSerializer, \
     UserPasswordResetByOTPVerificationSerializer, UserAccountActivationByOTPVerificationSerializer, \
     UserAccountActivationByEmailVerificationSerializer
@@ -39,7 +39,7 @@ class SendAccountActivationByEmailViewSet(viewsets.GenericViewSet):
     """
     This endpoint allows to send account activation link to user's email.
     """
-    serializer_class: Type[serializers.Serializer] = SendPasswordResetByEmailSerializer
+    serializer_class: Type[serializers.Serializer] = SendAccountActivationByEmailSerializer
 
     def create(self, request: Request) -> Response:
         serializer = self.get_serializer(data=request.data)

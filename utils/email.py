@@ -12,12 +12,11 @@ from utils.inherit_types import GenericUser
 
 
 def send_email(data: Mapping[str, Any]) -> bool:
-
     try:
         email = EmailMessage(
             subject=data['subject'],
             body=data['body'],
-            from_email=settings.SERVER_EMAIL,
+            from_email=settings.DEFAULT_FROM_EMAIL,
             to=[data['to_email']]
         )
         email.send()

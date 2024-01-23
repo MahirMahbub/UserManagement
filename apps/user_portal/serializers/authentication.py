@@ -147,13 +147,13 @@ class SendAccountActivationByEmailSerializer(serializers.Serializer):
             raise serializers.ValidationError({"message": "Base URL is not set"})
 
         try:
-            link: str = f"{base_url}/verify/{uid}/{token}"
+            link: str = f"{base_url}/v1/api/account/activate/verify/email/{uid}/{token}"
         except TypeError as te:
             raise serializers.ValidationError({"message": "Error creating the reset link"})
 
-        body: str = 'Click Following Link to Reset Your Password ' + link
+        body: str = 'Click Following Link to activate your account ' + link
         data: dict[str, Any] = {
-            'subject': 'Reset Your Password',
+            'subject': 'Activate your account',
             'body': body,
             'to_email': user.email
         }

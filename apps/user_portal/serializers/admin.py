@@ -174,7 +174,7 @@ class CreateAdminSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError({"message": "Base URL is not set"})
 
             try:
-                link: str = f"{base_url}/verify/{uid}/{token}"
+                link: str = f"{base_url}/v1/api/account/activate/verify/email/{uid}/{token}"
             except TypeError as te:
                 raise serializers.ValidationError({"message": "Can not create the verification link"})
 
