@@ -5,6 +5,9 @@ class UrlSafeEncodeError(Exception):
 class PasswordResetTokenGenerationError(Exception):
     pass
 
+class UserCreationError(Exception):
+    pass
+
 
 class AdminCreationError(Exception):
     pass

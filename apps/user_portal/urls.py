@@ -22,7 +22,7 @@ router.register(r"admins/register", CreateAdminViewSet, basename="create-admin")
 # router.register(r"reset-password/<uid>/<token>", UserPasswordResetViewSet, basename="reset-password")
 urlpatterns = [
     path("", include(router.urls)),
-    path("password/reset/change/email/<uid>/<token>",
+    path("password/reset/change/email/<str:uid>/<str:token>",
          UserPasswordResetByEmailVerificationViewSet.as_view({"post": "create"}), name="reset-password"),
-    path("account/activate/verify/email/<uid>/<token>",
+    path("account/activate/verify/email/<str:uid>/<str:token>",
          UserAccountActivationByEmailVerificationViewSet.as_view({"post": "create"}), name="reset-password"), ]

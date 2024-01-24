@@ -22,14 +22,14 @@ BASE_DIR: Path = Path(__file__).resolve().parent.parent
 env: environ.Env = environ.Env(
     # set casting, default value
     DEBUG=(bool, True),
-    DATABASE_ENGINE=(str, 'django.db.backends.sqlite3'),
-    DATABASE_NAME=(str, 'db.sqlite3'),
-    ALLOWED_HOSTS=(list[str], ['*']),
+    DATABASE_ENGINE=(str, "django.db.backends.sqlite3"),
+    DATABASE_NAME=(str, "db.sqlite3"),
+    ALLOWED_HOSTS=(list[str], ["*"]),
     PAGE_SIZE=(int, 10),
 )
 
 # Take environment variables from .env file
-environ.Env.read_env(os.path.join(BASE_DIR, '.env.dev'))
+environ.Env.read_env(os.path.join(BASE_DIR, ".env.dev"))
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -40,32 +40,26 @@ SIMPLE_JWT: dict[str, Any] = {
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": False,
     "UPDATE_LAST_LOGIN": True,
-
     "ALGORITHM": "HS256",
-    "SIGNING_KEY": env('SECRET_KEY'),
+    "SIGNING_KEY": env("SECRET_KEY"),
     "VERIFYING_KEY": "",
     "AUDIENCE": None,
     "ISSUER": None,
     "JSON_ENCODER": None,
     "JWK_URL": None,
     "LEEWAY": 0,
-
     "AUTH_HEADER_TYPES": ("Bearer",),
     "AUTH_HEADER_NAME": "HTTP_AUTHORIZATION",
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",
     "USER_AUTHENTICATION_RULE": "rest_framework_simplejwt.authentication.default_user_authentication_rule",
-
     "AUTH_TOKEN_CLASSES": ("rest_framework_simplejwt.tokens.AccessToken",),
     "TOKEN_TYPE_CLAIM": "token_type",
     "TOKEN_USER_CLASS": "rest_framework_simplejwt.models.TokenUser",
-
     "JTI_CLAIM": "jti",
-
     "SLIDING_TOKEN_REFRESH_EXP_CLAIM": "refresh_exp",
     "SLIDING_TOKEN_LIFETIME": timedelta(minutes=60),
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
-
     # "TOKEN_OBTAIN_SERIALIZER": "rest_framework_simplejwt.serializers.TokenObtainPairSerializer",
     "TOKEN_OBTAIN_SERIALIZER": "serializers.MyTokenObtainPairSerializer",
     "TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSerializer",
@@ -77,72 +71,71 @@ SIMPLE_JWT: dict[str, Any] = {
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY: IO[str] = env('SECRET_KEY')
+SECRET_KEY: IO[str] = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG: IO[bool] = env('DEBUG')
+DEBUG: IO[bool] = env("DEBUG")
 
-ALLOWED_HOSTS: IO[list[str]] = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS: IO[list[str]] = env("ALLOWED_HOSTS")
 
 # Application definition
 
 INSTALLED_APPS: list[str] = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    'rest_framework_simplejwt',
-    'anymail',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework_simplejwt",
+    "anymail",
     # 'corsheaders',
-    'rest_framework',
-    'drf_spectacular',
-    'apps.user_portal',
+    "rest_framework",
+    "drf_spectacular",
+    "apps.user_portal",
 ]
 
 AUTH_USER_MODEL: str = "user_portal.CallableUser"
 
 MIDDLEWARE: list[str] = [
-    'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF: str = 'config.urls'
+ROOT_URLCONF: str = "config.urls"
 
 MEDIA_URL: Annotated[str, os.PathLike] = "/media/"
 MEDIA_ROOT: Path = BASE_DIR / "media"
 
 TEMPLATES: list[dict[str, Any] | None] = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates']
-        ,
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES: dict[str, Any] = {
-    'default': {
-        'ENGINE': env('DATABASE_ENGINE'),
-        'NAME': BASE_DIR / env('DATABASE_NAME'),
+    "default": {
+        "ENGINE": env("DATABASE_ENGINE"),
+        "NAME": BASE_DIR / env("DATABASE_NAME"),
     }
 }
 
@@ -151,25 +144,25 @@ DATABASES: dict[str, Any] = {
 
 AUTH_PASSWORD_VALIDATORS: list[dict[str, str] | None] = [
     {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
     },
     {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
-LANGUAGE_CODE: str = 'en-us'
+LANGUAGE_CODE: str = "en-us"
 
-TIME_ZONE: str = 'Asia/Dhaka'
+TIME_ZONE: str = "Asia/Dhaka"
 
 USE_I18N: bool = True
 
@@ -178,27 +171,25 @@ USE_TZ: bool = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_URL: Annotated[str, Path] = 'static/'
+STATIC_URL: Annotated[str, Path] = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
-DEFAULT_AUTO_FIELD: str = 'django.db.models.BigAutoField'
+DEFAULT_AUTO_FIELD: str = "django.db.models.BigAutoField"
 
 REST_FRAMEWORK: dict[str, Any] = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "PAGE_SIZE": env('PAGE_SIZE'),
+    "PAGE_SIZE": env("PAGE_SIZE"),
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-    "DEFAULT_AUTHENTICATION_CLASSES": [
-        "utils.mixins.CustomJWTAuthentication"
-    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": ["utils.mixins.CustomJWTAuthentication"],
 }
 
 SPECTACULAR_SETTINGS: dict[str, Any] = {
-    'TITLE': 'User Management API',
-    'DESCRIPTION': 'User Management API Documentation',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    "TITLE": "User Management API",
+    "DESCRIPTION": "User Management API Documentation",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
     # OTHER SETTINGS
 }
 
@@ -268,24 +259,24 @@ STATICFILES_DIRS: list[str | None] = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# EMAIL_HOST = 'localhost'
-# EMAIL_HOST_USER = 'mahirmahbub7@gmail.com'
-# # EMAIL_HOST_PASSWORD =
-# # EMAIL_USE_TLS = True
-# # EMAIL_PORT = 587
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "localhost"
+EMAIL_HOST_USER = "mahirmahbub7@gmail.com"
+# EMAIL_HOST_PASSWORD =
+# EMAIL_USE_TLS = True
+EMAIL_PORT = 2525
 # DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
-ANYMAIL = {
-    "MAILGUN_API_KEY": env('MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN')
-}
-EMAIL_BACKEND = env('EMAIL_BACKEND')
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL')
-SERVER_EMAIL = env('SERVER_EMAIL')
+# ANYMAIL = {
+#     "MAILGUN_API_KEY": env('MAILGUN_API_KEY'),
+#     "MAILGUN_SENDER_DOMAIN": env('MAILGUN_SENDER_DOMAIN')
+# }
+# EMAIL_BACKEND = env('EMAIL_BACKEND')
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL")
+SERVER_EMAIL = env("SERVER_EMAIL")
 
-ACCOUNT_SID = env('ACCOUNT_SID')
-AUTH_TOKEN = env('AUTH_TOKEN')
-COUNTRY_CODE = env('COUNTRY_CODE')
-TWILIO_WHATSAPP_NUMBER = env('TWILIO_WHATSAPP_NUMBER')
-TWILIO_PHONE_NUMBER = env('TWILIO_PHONE_NUMBER')
+# ACCOUNT_SID = env('ACCOUNT_SID')
+# AUTH_TOKEN = env('AUTH_TOKEN')
+# COUNTRY_CODE = env('COUNTRY_CODE')
+# TWILIO_WHATSAPP_NUMBER = env('TWILIO_WHATSAPP_NUMBER')
+# TWILIO_PHONE_NUMBER = env('TWILIO_PHONE_NUMBER')
