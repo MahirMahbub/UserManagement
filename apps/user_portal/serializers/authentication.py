@@ -10,7 +10,11 @@ from environ import Env
 from rest_framework import serializers
 from rest_framework.fields import EmailField, CharField
 
-from apps.user_portal.exceptions import UrlSafeEncodeError, PasswordResetTokenGenerationError, SendOTPError
+from apps.user_portal.exceptions import (
+    UrlSafeEncodeError,
+    PasswordResetTokenGenerationError,
+    SendOTPError,
+)
 from apps.user_portal.models import CallableUser, SaltedPasswordModel
 from utils.email import send_email, get_uid_and_token_for_reset
 from utils.inherit_types import ChildUser
@@ -32,13 +36,15 @@ class SendPasswordResetByEmailSerializer(serializers.Serializer):
         If the user does not receive the email, they can request for a new one.
         """
 
-        email: str = attrs.get('email')
+        email: str = attrs.get("email")
         if not email:
             raise serializers.ValidationError({"message": "Email is required"})
 
         callable_user: CallableUser = CallableUser.objects.filter(email=email).first()
         if not callable_user:
-            raise serializers.ValidationError({"message": "Invalid Email, No account found"})
+            raise serializers.ValidationError(
+                {"message": "Invalid Email, No account found"}
+            )
 
         try:
             token, uid = get_uid_and_token_for_reset(callable_user)
@@ -50,20 +56,22 @@ class SendPasswordResetByEmailSerializer(serializers.Serializer):
         env: Env = Env()
 
         try:
-            base_url: str = env('BASE_URL')
+            base_url: str = env("BASE_URL")
         except KeyError as ke:
             raise serializers.ValidationError({"message": "Base URL is not set"})
 
         try:
             link: str = f"{base_url}/reset-password/{uid}/{token}"
         except TypeError as te:
-            raise serializers.ValidationError({"message": "Error creating the reset link"})
+            raise serializers.ValidationError(
+                {"message": "Error creating the reset link"}
+            )
 
-        body: str = 'Click Following Link to Reset Your Password ' + link
+        body: str = "Click Following Link to Reset Your Password " + link
         data: dict[str, Any] = {
-            'subject': 'Reset Your Password',
-            'body': body,
-            'to_email': callable_user.email
+            "subject": "Reset Your Password",
+            "body": body,
+            "to_email": callable_user.email,
         }
 
         is_success: bool = send_email(data)
@@ -89,23 +97,31 @@ class SendPasswordResetByOTPSerializer(serializers.Serializer):
         The OTP is valid for 5 minutes. If the user does not receive the OTP or expired, they can request for a new one.
         """
 
-        phone_number: str = attrs.get('phone_number')
+        phone_number: str = attrs.get("phone_number")
         if not phone_number:
             raise serializers.ValidationError({"message": "Phone Number is required"})
 
-        email: str = attrs.get('email')
+        email: str = attrs.get("email")
         if not email:
-            raise serializers.ValidationError({"message": "Email is required to check the validity of the account"})
+            raise serializers.ValidationError(
+                {"message": "Email is required to check the validity of the account"}
+            )
 
         user: ChildUser = CallableUser.objects.get_subclass(email=email)
         if not user:
-            raise serializers.ValidationError({"message": "Invalid Email, No account found"})
+            raise serializers.ValidationError(
+                {"message": "Invalid Email, No account found"}
+            )
 
         callable_user: CallableUser = user.callableuser_ptr
 
         if user.phone_number != phone_number:
-            raise serializers.ValidationError({"message": "Phone Number do not match with the \
-                                                account registered phone number"})
+            raise serializers.ValidationError(
+                {
+                    "message": "Phone Number do not match with the \
+                                                account registered phone number"
+                }
+            )
         try:
             send_otp(user_object=callable_user, phone_number=phone_number)
         except SendOTPError as send_err:
@@ -124,13 +140,15 @@ class SendAccountActivationByEmailSerializer(serializers.Serializer):
         If the user does not receive the email, they can request for a new one.
         """
 
-        email: str = attrs.get('email')
+        email: str = attrs.get("email")
         if not email:
             raise serializers.ValidationError({"message": "Email is required"})
 
         user: CallableUser = CallableUser.objects.filter(email=email).first()
         if not user:
-            raise serializers.ValidationError({"message": "Invalid Email, No account found"})
+            raise serializers.ValidationError(
+                {"message": "Invalid Email, No account found"}
+            )
 
         try:
             token, uid = get_uid_and_token_for_reset(user)
@@ -142,20 +160,22 @@ class SendAccountActivationByEmailSerializer(serializers.Serializer):
         env: Env = Env()
 
         try:
-            base_url: str = env('BASE_URL')
+            base_url: str = env("BASE_URL")
         except KeyError as ke:
             raise serializers.ValidationError({"message": "Base URL is not set"})
 
         try:
             link: str = f"{base_url}/verify/{uid}/{token}"
         except TypeError as te:
-            raise serializers.ValidationError({"message": "Error creating the reset link"})
+            raise serializers.ValidationError(
+                {"message": "Error creating the reset link"}
+            )
 
-        body: str = 'Click Following Link to Reset Your Password ' + link
+        body: str = "Click Following Link to Reset Your Password " + link
         data: dict[str, Any] = {
-            'subject': 'Reset Your Password',
-            'body': body,
-            'to_email': user.email
+            "subject": "Reset Your Password",
+            "body": body,
+            "to_email": user.email,
         }
 
         is_success: bool = send_email(data)
@@ -178,13 +198,15 @@ class SendAccountActivationByOTPSerializer(serializers.Serializer):
 
         """
 
-        phone_number: str = attrs.get('phone_number')
+        phone_number: str = attrs.get("phone_number")
         if not phone_number:
             raise serializers.ValidationError({"message": "Phone Number is required"})
 
-        email: str = attrs.get('email')
+        email: str = attrs.get("email")
         if not email:
-            raise serializers.ValidationError({"message": "Email is required to check the validity of the account"})
+            raise serializers.ValidationError(
+                {"message": "Email is required to check the validity of the account"}
+            )
 
         user = CallableUser.objects.get_subclass(email=email)
         if not user:
@@ -204,7 +226,7 @@ class UserPasswordResetByEmailVerificationSerializer(serializers.Serializer):
     confirm_password: CharField = serializers.CharField(max_length=128, write_only=True)
 
     class Meta:
-        fields: tuple[str, str] = ('password', 'confirm_password')
+        fields: tuple[str, str] = ("password", "confirm_password")
 
     def validate(self, attrs: Mapping[str, Any]) -> Mapping[str, Any] | NoReturn:
         """
@@ -212,22 +234,26 @@ class UserPasswordResetByEmailVerificationSerializer(serializers.Serializer):
         It also checks if the user exists and if the token is valid. If the token is valid, the user's password is reset.
         """
 
-        password: str | None = attrs.get('password')
+        password: str | None = attrs.get("password")
         if not password:
             raise serializers.ValidationError({"message": "Password is required"})
 
-        confirm_password: str | None = attrs.get('confirm_password')
+        confirm_password: str | None = attrs.get("confirm_password")
         if not confirm_password:
-            raise serializers.ValidationError({"message": "Confirm Password is required"})
+            raise serializers.ValidationError(
+                {"message": "Confirm Password is required"}
+            )
 
         if password != confirm_password:
-            raise serializers.ValidationError({"message": "Password and Confirm Password do not match"})
+            raise serializers.ValidationError(
+                {"message": "Password and Confirm Password do not match"}
+            )
 
-        uid: str = self.context.get('uid')
+        uid: str = self.context.get("uid")
         if uid is None:
             raise serializers.ValidationError({"message": "uid is required"})
 
-        token: str = self.context.get('token')
+        token: str = self.context.get("token")
         if token is None:
             raise serializers.ValidationError({"message": "token is required"})
 
@@ -242,12 +268,16 @@ class UserPasswordResetByEmailVerificationSerializer(serializers.Serializer):
 
         sub_class_user: ChildUser = CallableUser.objects.get_subclass(email=user.email)
 
-        hashed_special_key: bytes = bcrypt.hashpw(sub_class_user.special_key, sub_class_user.salt)
-        salted_password: SaltedPasswordModel = SaltedPasswordModel.objects.get(hashed_special_key=hashed_special_key)
+        hashed_special_key: bytes = bcrypt.hashpw(
+            sub_class_user.special_key, sub_class_user.salt
+        )
+        salted_password: SaltedPasswordModel = SaltedPasswordModel.objects.get(
+            hashed_special_key=hashed_special_key
+        )
         salted_password.set_password(password=password)
 
         sub_class_user.is_auto_password = False
-
+        sub_class_user.is_active = True
         with transaction.atomic():
             salted_password.save()
             sub_class_user.save()
@@ -261,35 +291,41 @@ class UserPasswordResetByOTPVerificationSerializer(serializers.Serializer):
     email: EmailField = serializers.EmailField()
 
     class Meta:
-        fields: tuple[str, str, str] = ('password', 'confirm_password', 'otp')
+        fields: tuple[str, str, str] = ("password", "confirm_password", "otp")
 
     def validate(self, attrs: Mapping[str, Any]) -> Mapping[str, Any] | NoReturn:
         """
         This method validates the serializer data. It checks if the password and confirm password match.
         It also checks if the user exists and if the OTP is valid. If the OTP is valid, the user's password is reset.
         """
-        password: str | None = attrs.get('password')
+        password: str | None = attrs.get("password")
         if not password:
             raise serializers.ValidationError({"message": "Password is required"})
 
-        confirm_password: str | None = attrs.get('confirm_password')
+        confirm_password: str | None = attrs.get("confirm_password")
         if not confirm_password:
-            raise serializers.ValidationError({"message": "Confirm Password is required"})
+            raise serializers.ValidationError(
+                {"message": "Confirm Password is required"}
+            )
 
         if password != confirm_password:
-            raise serializers.ValidationError({"message": "Password and Confirm Password do not match"})
+            raise serializers.ValidationError(
+                {"message": "Password and Confirm Password do not match"}
+            )
 
-        otp: str | None = attrs.get('otp')
+        otp: str | None = attrs.get("otp")
         if not otp:
             raise serializers.ValidationError({"message": "OTP is required"})
 
-        email: str | None = attrs.get('email')
+        email: str | None = attrs.get("email")
         if not email:
             raise serializers.ValidationError({"message": "Email is required"})
 
         sub_class_user: ChildUser = CallableUser.objects.get_subclass(email=email)
         if not sub_class_user:
-            raise serializers.ValidationError({"message": "No associate user found with this email"})
+            raise serializers.ValidationError(
+                {"message": "No associate user found with this email"}
+            )
 
         callable_user: CallableUser = sub_class_user.callableuser_ptr
 
@@ -298,12 +334,15 @@ class UserPasswordResetByOTPVerificationSerializer(serializers.Serializer):
         except Exception as e:
             raise serializers.ValidationError({"message": "Error Checking OTP"})
 
-
         if not otp_object.verify(otp):
             raise serializers.ValidationError({"message": "Invalid OTP"})
 
-        hashed_special_key: bytes = bcrypt.hashpw(sub_class_user.special_key, sub_class_user.salt)
-        salted_password: SaltedPasswordModel = SaltedPasswordModel.objects.get(hashed_special_key=hashed_special_key)
+        hashed_special_key: bytes = bcrypt.hashpw(
+            sub_class_user.special_key, sub_class_user.salt
+        )
+        salted_password: SaltedPasswordModel = SaltedPasswordModel.objects.get(
+            hashed_special_key=hashed_special_key
+        )
         salted_password.set_password(password=password)
 
         with transaction.atomic():
@@ -317,7 +356,7 @@ class UserAccountActivationByOTPVerificationSerializer(serializers.Serializer):
     email: EmailField = serializers.EmailField()
 
     class Meta:
-        fields: tuple[str, str] = ('otp',)
+        fields: tuple[str, str] = ("otp",)
 
     def validate(self, attrs: Mapping[str, Any]) -> Mapping[str, Any] | NoReturn:
         """
@@ -325,17 +364,19 @@ class UserAccountActivationByOTPVerificationSerializer(serializers.Serializer):
         If the OTP is valid, the user's account is activated.
         """
 
-        otp: str | None = attrs.get('otp')
+        otp: str | None = attrs.get("otp")
         if not otp:
             raise serializers.ValidationError({"message": "OTP is required"})
 
-        email: str | None = attrs.get('email')
+        email: str | None = attrs.get("email")
         if not email:
             raise serializers.ValidationError({"message": "Email is required"})
 
         sub_class_user: ChildUser = CallableUser.objects.get_subclass(email=email)
         if not sub_class_user:
-            raise serializers.ValidationError({"message": "No associate user found with this email"})
+            raise serializers.ValidationError(
+                {"message": "No associate user found with this email"}
+            )
 
         callable_user: CallableUser = sub_class_user.callableuser_ptr
 
@@ -353,11 +394,6 @@ class UserAccountActivationByOTPVerificationSerializer(serializers.Serializer):
 
 
 class UserAccountActivationByEmailVerificationSerializer(serializers.Serializer):
-    email: EmailField = serializers.EmailField()
-
-    class Meta:
-        fields: tuple[str, str] = ('email',)
-
     def validate(self, attrs: Mapping[str, Any]) -> Mapping[str, Any] | NoReturn:
         """
         This method validates the serializer data. It checks if the user exists and if the token is valid.
@@ -365,28 +401,23 @@ class UserAccountActivationByEmailVerificationSerializer(serializers.Serializer)
         If the user does not receive the email, they can request for a new one.
         The link is used to activate the user's account.
         """
-        email: str | None = attrs.get('email')
-        if not email:
-            raise serializers.ValidationError({"message": "Email is required"})
 
-        uid: str = self.context.get('uid')
+        uid: str = self.context.get("uid")
         if not uid:
             raise serializers.ValidationError({"message": "uid is required"})
 
-        token: str = self.context.get('token')
+        token: str = self.context.get("token")
         if not token:
             raise serializers.ValidationError({"message": "token is required"})
 
         id_: Promise | str | Any = smart_str(urlsafe_base64_decode(uid))
-        user: CallableUser = CallableUser.objects.filter(id=id_).first()
+        self.user: CallableUser = (
+            CallableUser.objects.filter(id=id_).select_subclasses().first()
+        )
 
-        if not user:
+        if not self.user:
             raise serializers.ValidationError({"message": "Invalid User"})
 
-        if not PasswordResetTokenGenerator().check_token(user, token):
+        if not PasswordResetTokenGenerator().check_token(self.user, token):
             raise serializers.ValidationError({"message": "Invalid or Expired Token"})
-
-        sub_class_user: ChildUser = CallableUser.objects.get_subclass(email=user.email)
-        sub_class_user.is_active = True
-        sub_class_user.save()
         return attrs

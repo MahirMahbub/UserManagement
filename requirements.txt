@@ -13,3 +13,5 @@ PyJWT
 pyotp
 twilio
 pydantic
+django-cors-headers
+django-debug-toolbar

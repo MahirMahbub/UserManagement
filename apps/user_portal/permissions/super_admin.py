@@ -7,4 +7,6 @@ class IsSuperAdmin(BasePermission):
     """
 
     def has_permission(self, request, view) -> bool:
+        if request.auth is None:
+            return False
         return request.auth.payload.get("role") == "SuperAdmin"

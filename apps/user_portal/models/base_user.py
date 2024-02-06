@@ -13,7 +13,7 @@ class CallableUser(AbstractBaseUser, PermissionsMixin):
     """
 
     email = models.EmailField(unique=True)
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = "email"
     password = None
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=True)
@@ -32,7 +32,6 @@ class AbstractUser(CallableUser):
     objects = BaseUserManager()
 
     def __unicode__(self):
-
         return self.email
 
     class Meta:

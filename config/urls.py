@@ -18,19 +18,27 @@ from typing import Any
 
 from django.contrib import admin
 from django.urls import path, include
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
 
 from apps.user_portal.views.token import CustomTokenObtainPairView
 
 urlpatterns: list[Any] = [
-    path('admin/', admin.site.urls),
+    path("admin/", admin.site.urls),
     path("schema/", SpectacularAPIView.as_view(), name="schema"),
+    path("docs/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
+    path("redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
     path(
-        "docs/",
-        SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-    path('v1/api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('v1/api/token/refresh/', CustomTokenObtainPairView.as_view(), name='token_refresh'),
-    path('v1/api/', include("apps.user_portal.urls", namespace="user_portal")),
-
+        "v1/api/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"
+    ),
+    path(
+        "v1/api/token/refresh/",
+        CustomTokenObtainPairView.as_view(),
+        name="token_refresh",
+    ),
+    path("v1/api/", include("apps.user_portal.urls", namespace="user_portal")),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

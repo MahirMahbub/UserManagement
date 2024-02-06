@@ -88,10 +88,11 @@ INSTALLED_APPS: list[str] = [
     "django.contrib.staticfiles",
     "rest_framework_simplejwt",
     "anymail",
-    # 'corsheaders',
+    'corsheaders',
     "rest_framework",
     "drf_spectacular",
     "apps.user_portal",
+    "debug_toolbar",
 ]
 
 AUTH_USER_MODEL: str = "user_portal.CallableUser"
@@ -104,6 +105,8 @@ MIDDLEWARE: list[str] = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
 ]
 
 ROOT_URLCONF: str = "config.urls"
@@ -248,16 +251,15 @@ SPECTACULAR_SETTINGS: dict[str, Any] = {
 #     },
 # }
 
-# AUTHENTICATION_BACKENDS = [
-#
-#     'apps.user_portal.backends.CustomAdminBackend',
-#     "django.contrib.auth.backends.ModelBackend",
-# #
-# ]
-
-STATICFILES_DIRS: list[str | None] = [
-    os.path.join(BASE_DIR, "static"),
+AUTHENTICATION_BACKENDS = [
+    "apps.user_portal.backends.CustomAdminBackend",
+    # "django.contrib.auth.backends.ModelBackend",
+    #
 ]
+
+# STATICFILES_DIRS: list[str | None] = [
+#     os.path.join(BASE_DIR, "static"),
+# ]
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "localhost"
@@ -280,3 +282,16 @@ SERVER_EMAIL = env("SERVER_EMAIL")
 # COUNTRY_CODE = env('COUNTRY_CODE')
 # TWILIO_WHATSAPP_NUMBER = env('TWILIO_WHATSAPP_NUMBER')
 # TWILIO_PHONE_NUMBER = env('TWILIO_PHONE_NUMBER')
+ACTIVATION_URL = "api/v1/auth/users/activate/{uid}/{token}"
+PASSWORD_RESET_CONFIRM_URL = "api/v1/auth/users/reset/{uid}/{token}"
+
+
+INTERNAL_IPS = [
+    # ...
+    "127.0.0.1",
+    # ...
+]
+
+CORS_ALLOWED_ORIGINS = [
+	'http://localhost:5173'
+]

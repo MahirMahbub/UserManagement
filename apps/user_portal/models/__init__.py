@@ -3,3 +3,4 @@ from .base_user import AbstractUser, CallableUser
 from .teacher import Teacher
 from .super_admin import SuperAdmin
 from .admin import Admin
+from .course import Course

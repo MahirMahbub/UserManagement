@@ -20,7 +20,9 @@ class CustomAdminBackend(ModelBackend):
                 admin = SuperAdmin.objects.get(email=username)
             except SuperAdmin.DoesNotExist:
                 return None
-            if self.check_password(password, admin) and self.user_can_authenticate(user):
+            if self.check_password(password, admin) and self.user_can_authenticate(
+                user
+            ):
                 return user
             else:
                 return None
@@ -53,9 +55,13 @@ class CustomAdminBackend(ModelBackend):
             return False
         encoded_special_key = special_key
         hashed_special_key = bcrypt.hashpw(encoded_special_key, admin.salt)
-        password_obj = SaltedPasswordModel.objects.get(hashed_special_key=hashed_special_key)
+        password_obj = SaltedPasswordModel.objects.get(
+            hashed_special_key=hashed_special_key
+        )
         if password_obj is not None:
-            check_password = bcrypt.checkpw(password.encode('utf-8'), password_obj.password)
+            check_password = bcrypt.checkpw(
+                password.encode("utf-8"), password_obj.password
+            )
             if check_password:
                 return True
             else:

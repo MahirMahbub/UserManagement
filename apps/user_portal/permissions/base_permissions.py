@@ -1,3 +1,3 @@
-class BasePermissions(object):
+class BasePermissions:
     def get_permissions(self):
-        pass
+        return []
