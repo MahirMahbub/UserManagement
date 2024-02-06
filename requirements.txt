@@ -1,3 +1,4 @@
+setuptools
 bcrypt
 Django
 django-anymail
@@ -15,3 +16,4 @@ twilio
 pydantic
 django-cors-headers
 django-debug-toolbar
+django-templated-mail
